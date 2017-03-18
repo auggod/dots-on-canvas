@@ -1,0 +1,110 @@
+doctype html
+html(lang="en")
+  head
+    title Canvas
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous")
+  body
+    canvas(id="canvas" width="800" height="600")
+    .tools
+      .btn-group
+        a.btn.btn-default(role="button" id="dl" download="Canvas.png") Download canvas
+        a.btn.btn-default(role="button" id="redraw") Redraw
+    style
+      :stylus
+        body
+          margin 0
+        canvas
+          background #000
+        .tools
+          position absolute
+          top 20px
+          right 20px
+    script
+      :livescript
+        dlCanvas = ->
+          dt = canvas.toDataURL('image/png')
+          this.href = dt
+
+        dl.addEventListener('click', dlCanvas, false)
+
+        redrawCanvas = ->
+          width = canvas.width
+          height = canvas.height
+          size = width / 33.333
+          maxRows = 43
+          maxCols = 28
+          ctx = canvas.getContext "2d"
+          ctx.fillStyle = "#000"
+          ctx.fillRect(0, 0, width, height)
+          draw!
+
+        redraw.addEventListener('click', redrawCanvas, false)
+
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+
+        width = canvas.width
+        height = canvas.height
+        size = width / (100 / 0.75)
+        maxRows = 43
+        maxCols = 28
+        ctx = canvas.getContext "2d"
+
+        resizeCanvas = (e) ->
+          w = e.target.outerWidth
+          h = e.target.outerHeight
+          canvas.width = w
+          canvas.height = h
+          redrawCanvas!
+          draw!
+
+        window.addEventListener('resize', resizeCanvas, false)
+
+        window.addEventListener('mousemove', redrawCanvas, false)
+
+        setHue = (alpha = 1) ->
+          return 'rgba(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + alpha + ')'
+
+        ctx.fillStyle = '#000'
+        ctx.fillRect(0, 0, width, height)
+
+        draw = (xPos = 0, yPos = 0, countX = 0, countY = 0) ->
+          countX = countX + 1
+
+          min = -1
+          max = 1
+
+          random = Math.floor(Math.random() * (max - min + 1)) + min
+
+          if random == 1
+            ctx.beginPath()
+            ctx.arc(xPos - size / 2, yPos - size / 2, size / 4, 0, 2 * Math.PI, false)
+            ctx.fillStyle = setHue!
+            ctx.fill()
+
+          if xPos < width
+            xPos = size * countX
+            return draw(xPos, yPos, countX, countY)
+
+          if xPos > width
+            xPos = 0
+            countX = 0
+            countY = countY + 1
+            yPos = size * countY
+            if yPos > height + 100
+              console.log("Done")
+              return
+            return draw(xPos, yPos, countX, countY)
+          return
+
+        draw!
+
+        /*
+        ctx.font = "30px Inconsolata"
+        txt = "hello@auggod.tech".split("").join(String.fromCharCode(8202))
+        ctx.fillStyle = '#000'
+        textWidth = ctx.measureText(txt).width + 20
+        ctx.fillRect(canvas.width / 2 - textWidth / 2, canvas.height / 2 - 35, textWidth, 50)
+        ctx.fillStyle = '#fff'
+        ctx.fillText(txt, canvas.width / 2 - textWidth / 2, canvas.height / 2)
+        */
